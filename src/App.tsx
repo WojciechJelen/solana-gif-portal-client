@@ -1,14 +1,38 @@
+import { useEffect, useState } from "react";
 import twitterLogo from "./assets/twitter-logo.svg";
 import "./App.css";
 import { useWallet } from "./hooks/useWallet";
 import { ConnectWalletButton } from "./components/ConnectWalletButton";
+import { GifsGrid } from "./components/GifsGrid";
+import SubmitGifForm from "./components/SubmitGifForm";
 
-// Constants
+const TEST_GIFS = [
+  "https://media.giphy.com/media/xUNd9JdmvY6vhoN4OY/giphy.gif",
+  "https://media.giphy.com/media/3owvKlBvKezRyIyyyc/giphy.gif",
+  "https://media.giphy.com/media/U9iBdl5uQSEV2/giphy.gif",
+  "https://media.giphy.com/media/koPZEcZ0inEIg/giphy.gif",
+];
+
 const TWITTER_HANDLE = "_buildspace";
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 
 const App = () => {
   const { connectWallet, walletAddress } = useWallet();
+  const [gifList, setGifList] = useState<Array<string>>([]);
+
+  const onGifSubmit = (gifUrl: string) => {
+    if (gifUrl.length > 0) {
+      console.log("Gif link:", gifUrl);
+    } else {
+      console.log("Empty input. Try again.");
+    }
+  };
+
+  useEffect(() => {
+    if (walletAddress) {
+      setGifList(TEST_GIFS);
+    }
+  }, [walletAddress]);
 
   return (
     <div className="App">
@@ -18,8 +42,15 @@ const App = () => {
           <p className="sub-text">
             View your GIF collection in the metaverse ✨
           </p>
-          {!walletAddress && (
-            <ConnectWalletButton connectWallet={connectWallet} />
+          {!walletAddress ? (
+            <div className="unconnected-container">
+              <ConnectWalletButton connectWallet={connectWallet} />
+            </div>
+          ) : (
+            <div className="connected-container">
+              <SubmitGifForm onSubmit={onGifSubmit} />
+              <GifsGrid gifs={gifList} />
+            </div>
           )}
         </div>
         <div className="footer-container">
